@@ -1,0 +1,169 @@
+<%- include('partials/header') %>
+
+<div class="page-wrap">
+
+  <!-- ══════════════════════════════════════════════════
+       LEFT HALF — ENCRYPT
+  ══════════════════════════════════════════════════════ -->
+  <section class="panel panel-encrypt">
+
+    <div class="panel-header">
+      <div class="panel-icon encrypt-icon">🔒</div>
+      <div>
+        <h2 class="panel-title">Encrypt</h2>
+        <p class="panel-sub">A unique key & IV are generated automatically</p>
+      </div>
+    </div>
+
+    <% if (encryptError) { %>
+      <div class="alert alert-error"><%= encryptError %></div>
+    <% } %>
+
+    <form action="/encrypt" method="POST" class="panel-form">
+      <div class="form-group">
+        <label for="plaintext">Your Text</label>
+        <textarea id="plaintext" name="plaintext" rows="5"
+          placeholder="Type or paste the text you want to encrypt…"
+          required><% if (encryptResult) { %><% } %></textarea>
+      </div>
+      <button type="submit" class="btn btn-encrypt">Encrypt →</button>
+    </form>
+
+    <!-- Result -->
+    <div class="result-area <%= encryptResult ? 'visible' : '' %>">
+      <% if (encryptResult) { %>
+        <div class="result-success">
+          <span class="success-dot"></span> Encrypted successfully — save your key & IV!
+        </div>
+
+        <div class="result-field">
+          <div class="result-label">Ciphertext (hex)</div>
+          <div class="result-val mono" id="enc-cipher"><%= encryptResult.ciphertext %></div>
+          <button class="copy-btn" data-target="enc-cipher">Copy</button>
+        </div>
+
+        <div class="result-row">
+          <div class="result-field half">
+            <div class="result-label">Key <span class="badge-warn">Save this!</span></div>
+            <div class="result-val mono" id="enc-key"><%= encryptResult.key %></div>
+            <button class="copy-btn" data-target="enc-key">Copy</button>
+          </div>
+          <div class="result-field half">
+            <div class="result-label">IV</div>
+            <div class="result-val mono" id="enc-iv"><%= encryptResult.iv %></div>
+            <button class="copy-btn" data-target="enc-iv">Copy</button>
+          </div>
+        </div>
+
+        <p class="key-warning">⚠ This key exists only here — it is not stored anywhere. Copy it now.</p>
+      <% } else { %>
+        <div class="empty-result">
+          <div class="empty-glyph">◫</div>
+          <p>Encrypted output will appear here</p>
+        </div>
+      <% } %>
+    </div>
+
+  </section>
+
+  <!-- Divider -->
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-label">vs</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+       RIGHT HALF — DECRYPT
+  ══════════════════════════════════════════════════════ -->
+  <section class="panel panel-decrypt">
+
+    <div class="panel-header">
+      <div class="panel-icon decrypt-icon">🔓</div>
+      <div>
+        <h2 class="panel-title">Decrypt</h2>
+        <p class="panel-sub">Paste the ciphertext, key, and IV to recover plaintext</p>
+      </div>
+    </div>
+
+    <% if (decryptError) { %>
+      <div class="alert alert-error"><%= decryptError %></div>
+    <% } %>
+
+    <form action="/decrypt" method="POST" class="panel-form">
+      <div class="form-group">
+        <label for="ciphertext">Ciphertext (hex)</label>
+        <textarea id="ciphertext" name="ciphertext" rows="3"
+          class="mono"
+          placeholder="Paste hex ciphertext…"
+          required><% if (decryptResult) { %><%= decryptResult.ciphertext %><% } %></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="key">Key <span class="label-hint">(32 hex chars)</span></label>
+          <input type="text" id="key" name="key" class="mono"
+            placeholder="32 hex characters" maxlength="32" minlength="32" required />
+        </div>
+        <div class="form-group">
+          <label for="iv">IV <span class="label-hint">(32 hex chars)</span></label>
+          <input type="text" id="iv" name="iv" class="mono"
+            placeholder="32 hex characters" maxlength="32" minlength="32" required />
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-decrypt">Decrypt →</button>
+    </form>
+
+    <!-- Result -->
+    <div class="result-area <%= decryptResult ? 'visible' : '' %>">
+      <% if (decryptResult) { %>
+        <div class="result-success result-success--dec">
+          <span class="success-dot success-dot--dec"></span> Decrypted successfully
+        </div>
+
+        <div class="result-field">
+          <div class="result-label">Recovered Plaintext</div>
+          <div class="result-val plaintext-val" id="dec-plain"><%= decryptResult.plaintext %></div>
+          <button class="copy-btn" data-target="dec-plain">Copy</button>
+        </div>
+      <% } else { %>
+        <div class="empty-result">
+          <div class="empty-glyph">◫</div>
+          <p>Decrypted plaintext will appear here</p>
+        </div>
+      <% } %>
+    </div>
+
+  </section>
+
+</div>
+
+<!-- How it works strip -->
+<div class="how-strip">
+  <div class="how-item">
+    <span class="how-num">01</span>
+    <strong>Type plaintext</strong>
+    <span>Enter your message on the left</span>
+  </div>
+  <div class="how-arrow">→</div>
+  <div class="how-item">
+    <span class="how-num">02</span>
+    <strong>Auto-generate key & IV</strong>
+    <span>Fresh 128-bit key + random IV per click</span>
+  </div>
+  <div class="how-arrow">→</div>
+  <div class="how-item">
+    <span class="how-num">03</span>
+    <strong>Copy outputs</strong>
+    <span>Save ciphertext, key, and IV</span>
+  </div>
+  <div class="how-arrow">→</div>
+  <div class="how-item">
+    <span class="how-num">04</span>
+    <strong>Decrypt anytime</strong>
+    <span>Paste all three into the right panel</span>
+  </div>
+</div>
+
+<%- include('partials/footer') %>
